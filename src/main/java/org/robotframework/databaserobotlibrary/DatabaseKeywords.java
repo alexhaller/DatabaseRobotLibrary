@@ -32,6 +32,8 @@ public class DatabaseKeywords {
 	/* Constructor with possible initializers */
 	public DatabaseKeywords() {
 	}
+	
+	/* Public helper methods */
 
 	@RobotKeyword("Connects to the given database url using the specified driver. " + "The username and password are optional. If not given, default values are used. "
 			+ "Every new connection closes the previously opened connection.\n\n" + "Examples:\n"
@@ -55,6 +57,8 @@ public class DatabaseKeywords {
 			con = null;
 		}
 	}
+	
+	/* Basic methods */
 
 	@RobotKeyword("Executes the given SELECT command. " + "Before making calls to this keyword, the connection should be opened using the ConnectToDatabase keyword. "
 			+ "The query results are stored into a class internal variable, " + "from where it can be printed out using the PrintQueryResultsToLog keyword. "
@@ -68,21 +72,6 @@ public class DatabaseKeywords {
 			saveResults(pstmt.executeQuery());
 		}
 		pstmt.close();
-	}
-
-	@RobotKeyword("Executes the given SELECT command and psrints the query results of the SELECT command into the log file.\n\n" + "Example:\n" + "| PrintQueryResultsToLog |\n"
-			+ "Before making calls to this keyword, the connection should be opened using the ConnectToDatabase keyword. " + "The query results are stored into a class internal variable, "
-			+ "from where it can be printed out using the PrintQueryResultsToLog keyword. " + "Verifications against query results can be done using the provided verification keywords.\n\n"
-			+ "Examples:\n" + "| ExecuteSelect | SELECT * FROM COMMENTS WHERE comments = 'My fixed comment' AND datum = 2011-01-01 |\n"
-			+ "| ExecuteSelect | SELECT day, night FROM COMMENTS WHERE myuser = lars AND datum = '2011-01-01' |\n")
-	@ArgumentNames({ "query" })
-	public void executeSelectAndPrintQueryResultsToLog(String query) throws Exception {
-		PreparedStatement pstmt = doPrep(query);
-		if (query.toUpperCase().startsWith("SELECT")) {
-			saveResults(pstmt.executeQuery());
-		}
-		pstmt.close();
-		printQueryResultsToLog();
 	}
 
 	@RobotKeyword("Executes the given UPDATE command. " + "Before making calls to this keyword, the connection should be opened using the ConnectToDatabase keyword.\n\n" + "Examples:\n"
@@ -129,9 +118,9 @@ public class DatabaseKeywords {
 	}
 
 	@RobotKeyword("Returns the text of the entry in the given (attention! index begins with 1 not 0 as e.g. in Java arrays) row and column.\n\n" + "Example:\n"
-			+ "| GetResultItemFromRow | 3 | SUMMARY |\n")
+			+ "| GetResultItemFromGivenRowAndColumn | 3 | SUMMARY |\n")
 	@ArgumentNames({ "row", "columnName" })
-	public String getResultItemFromRow(String row, String columnName) throws Exception {
+	public String getResultItemFromGivenRowAndColumn(String row, String columnName) throws Exception {
 		int roww = Integer.parseInt(row) - 1;
 		Assert.assertTrue("Row index out of bounds", this.results.size() > roww);
 		return this.results.get(roww).get(columnName.toUpperCase());
@@ -140,26 +129,19 @@ public class DatabaseKeywords {
 	@RobotKeyword("Returns the text of the entry in the given column and the first row.\n\n" + "Example:\n" + "| GetResultItem | SUMMARY |\n")
 	@ArgumentNames({ "columnName" })
 	public String getResultItem(String columnName) throws Exception {
-		return getResultItemFromRow("1", columnName);
+		return getResultItemFromGivenRowAndColumn("1", columnName);
 	}
 
-	@RobotKeyword("Verifies the equality of the entry in the given row and column.\n\n" + "Example:\n" + "| VerifyResultItemEquals | 3 | SUMMARY | summary value |\n")
-	@ArgumentNames({ "row", "columnName", "value" })
-	public void verifyResultItemEquals(String row, String columnName, String value) throws Exception {
-		int roww = Integer.parseInt(row) - 1;
-		Assert.assertTrue("Row index out of bounds", this.results.size() > roww);
-		Assert.assertEquals(value, this.results.get(roww).get(columnName.toUpperCase()));
+	@RobotKeyword("Prints the query results of the SELECT command into the log file.\n\n" + "Example:\n" + "| PrintQueryResultsToLog |\n")
+	public void printQueryResultsToLog() {
+		for (Map<String, String> mp : this.results) {
+			System.out.println(mp);
+		}
 	}
 
-	@RobotKeyword("Verifies that the entry in the given row and column contains the given value.\n\n" + "Example:\n" + "| VerifyResultItemContains | 3 | SUMMARY | summary value |\n")
-	@ArgumentNames({ "row", "columnName", "value" })
-	public void verifyResultItemContains(String row, String columnName, String value) throws Exception {
-		int roww = Integer.parseInt(row) - 1;
-		Assert.assertTrue("Row index out of bounds", this.results.size() > roww);
-		Assert.assertTrue(this.results.get(roww).get(columnName.toUpperCase()).contains(value));
-	}
-
-	/* private internal helper methods */
+	/* Extended methods */
+	
+	/* Private internal helper methods */
 
 	private PreparedStatement doPrep(String query) throws Exception {
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssz");
@@ -246,12 +228,6 @@ public class DatabaseKeywords {
 		}
 		this.results = list;
 		rs.close();
-	}
-
-	private void printQueryResultsToLog() {
-		for (Map<String, String> mp : this.results) {
-			System.out.println(mp);
-		}
 	}
 
 	protected void finalize() throws Throwable {
