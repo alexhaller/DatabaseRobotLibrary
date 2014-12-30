@@ -83,7 +83,7 @@
 						</goals>
 						<configuration>
 							<libdoc>
-								<outputDirectory>${project.build.directory}</outputDirectory>
+								<outputDirectory>${basedir}</outputDirectory>
 								<outputFile>${keywords.class}.html</outputFile>
 								<libraryOrResourceFile>${keywords.class}</libraryOrResourceFile>
 							</libdoc>
