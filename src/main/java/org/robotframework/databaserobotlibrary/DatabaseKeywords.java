@@ -32,7 +32,7 @@ public class DatabaseKeywords {
 	/* Constructor with possible initializers */
 	public DatabaseKeywords() {
 	}
-	
+
 	/* Public helper methods */
 
 	@RobotKeyword("Connects to the given database url using the specified driver. " + "The username and password are optional. If not given, default values are used. "
@@ -57,7 +57,7 @@ public class DatabaseKeywords {
 			con = null;
 		}
 	}
-	
+
 	/* Basic methods */
 
 	@RobotKeyword("Executes the given SELECT command. " + "Before making calls to this keyword, the connection should be opened using the ConnectToDatabase keyword. "
@@ -118,18 +118,18 @@ public class DatabaseKeywords {
 	}
 
 	@RobotKeyword("Returns the text of the entry in the given (attention! index begins with 1 not 0 as e.g. in Java arrays) row and column.\n\n" + "Example:\n"
-			+ "| GetResultItemFromGivenRowAndColumn | 3 | SUMMARY |\n")
+			+ "| GetResultItemsFromGivenRowAndColumn | 3 | SUMMARY |\n")
 	@ArgumentNames({ "row", "columnName" })
-	public String getResultItemFromGivenRowAndColumn(String row, String columnName) throws Exception {
+	public String getResultItemsFromGivenRowAndColumn(String row, String columnName) throws Exception {
 		int roww = Integer.parseInt(row) - 1;
 		Assert.assertTrue("Row index out of bounds", this.results.size() > roww);
 		return this.results.get(roww).get(columnName.toUpperCase());
 	}
 
-	@RobotKeyword("Returns the text of the entry in the given column and the first row.\n\n" + "Example:\n" + "| GetResultItem | SUMMARY |\n")
+	@RobotKeyword("Returns the text of the entry in the given column and the first row.\n\n" + "Example:\n" + "| GetFirstResultItem | SUMMARY |\n")
 	@ArgumentNames({ "columnName" })
-	public String getResultItem(String columnName) throws Exception {
-		return getResultItemFromGivenRowAndColumn("1", columnName);
+	public String getFirstResultItem(String columnName) throws Exception {
+		return getResultItemsFromGivenRowAndColumn("1", columnName);
 	}
 
 	@RobotKeyword("Prints the query results of the SELECT command into the log file.\n\n" + "Example:\n" + "| PrintQueryResultsToLog |\n")
@@ -140,7 +140,7 @@ public class DatabaseKeywords {
 	}
 
 	/* Extended methods */
-	
+
 	/* Private internal helper methods */
 
 	private PreparedStatement doPrep(String query) throws Exception {
