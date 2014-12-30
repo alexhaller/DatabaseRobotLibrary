@@ -7,7 +7,7 @@ This is a basic Maven project. To create a standalone jar package with dependenc
 
 NOTE! The licensed jdbc-drivers can be included to the build by making a local installation of the driver jar file, for example for the DB2 driver:
 
-mvn install:install-file -Dfile=db2jcc4.jar -DgroupId=db2x -DartifactId=db2jcc4 -Dversion=3.61 -Dpackaging=jar
+mvn install:install-file -Dfile=db2jcc4.jar -DgroupId=db2x -DartifactId=db2jcc4 -Dversion=4.16.53 -Dpackaging=jar
 
 After this the resulting jar with dependencies will contain also the DB2 driver, however, the build does not require it to finish successfully.
 
