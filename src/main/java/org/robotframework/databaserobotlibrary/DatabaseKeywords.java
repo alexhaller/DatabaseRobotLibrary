@@ -117,6 +117,15 @@ public class DatabaseKeywords {
 		return affectedRows;
 	}
 
+	@RobotKeyword("Returns if the result is empty or not. Returns 'Empty' or 'NotEmpty' \n\n" + "Example:\n" + "| IsTheResultEmpty |\n")
+	public String isTheResultEmpty() throws Exception {
+		if (this.results.size() > 0) {
+			return "NotEmpty";
+		} else {
+			return "Empty";
+		}
+	}
+
 	@RobotKeyword("Returns the text of the entry in the given (attention! index begins with 1 not 0 as e.g. in Java arrays) row and column.\n\n" + "Example:\n"
 			+ "| GetResultItemsFromGivenRowAndColumn | 3 | SUMMARY |\n")
 	@ArgumentNames({ "row", "columnName" })
