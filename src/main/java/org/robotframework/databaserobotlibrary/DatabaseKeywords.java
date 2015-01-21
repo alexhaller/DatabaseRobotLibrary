@@ -7,6 +7,7 @@ import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.DateFormat;
@@ -41,6 +42,10 @@ public class DatabaseKeywords {
 			+ "| ConnectToDatabase | com.mysql.jdbc.Driver | jdbc:mysql://localhost/feedback?generateSimpleParameterMetadata=true |\n")
 	@ArgumentNames({ "driverClass", "url", "user=", "pass=" })
 	public void connectToDatabase(String driverClass, String url, String user, String pass) throws Exception {
+		System.out.println("Übergebener Treiber: " + driverClass);
+		System.out.println("Übergebene URL: " + url);
+		System.out.println("Übergebener User: " + user);
+
 		Class.forName(driverClass);
 		if (con != null) {
 			con.close();
@@ -153,9 +158,47 @@ public class DatabaseKeywords {
 	/* Private internal helper methods */
 
 	private PreparedStatement doPrep(String query) throws Exception {
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssz");
-		PreparedStatement pstmt = con.prepareStatement(prepareQueryString(query));
-		List<String> params = extractParameters(query);
+		try {
+			System.out.println("Führe Statement mit Parameter-Extraktion aus.");
+			String preparedQueryString = prepareQueryString(query);
+			List<String> params = extractParameters(query);
+			PreparedStatement pstmt = con.prepareStatement(preparedQueryString);
+			setParameters(pstmt, params);
+			return pstmt;
+		} catch (SQLException sqle) {
+			System.out.println("Parameter-Extraktion/Ausführung mit Parametern nicht erfolgreich.");
+			System.out.println("Führe Statement ohne Parameter-Extraktion aus.");
+			System.out.println("Query: " + query);
+			PreparedStatement pstmt = con.prepareStatement(query);
+			return pstmt;
+		}
+	}
+
+	private String prepareQueryString(String query) {
+		String q = query.replaceAll("(=\\s{1,})", "=").replaceAll("='.*?'", "= ?").replaceAll("=[^ ]{1,}", "= ?");
+		System.out.println(q);
+		return q;
+	}
+
+	private List<String> extractParameters(String query) {
+		Pattern r = Pattern.compile("(='.*?'|=[^ ]{1,})");
+		Matcher m = r.matcher(query.replaceAll("(=\\s{1,})", "="));
+		List<String> params = new ArrayList<String>();
+		while (m.find()) {
+			String ss = m.group(1).trim();
+			if (ss.startsWith("='")) {
+				params.add(ss.substring(2, ss.length() - 1));
+			} else {
+				params.add(ss.substring(1, ss.length()));
+			}
+		}
+		for (int i = 0; i < params.size(); i++) {
+			System.out.println("Parameter " + (i + 1) + " = " + params.get(i));
+		}
+		return params;
+	}
+
+	private void setParameters(PreparedStatement pstmt, List<String> params) throws Exception {
 		ParameterMetaData paramMetaData = pstmt.getParameterMetaData();
 		for (int i = 1; i <= params.size(); i++) {
 			String pName = params.get(i - 1);
@@ -181,37 +224,13 @@ public class DatabaseKeywords {
 			case Types.DATE:
 			case Types.TIME:
 			case Types.TIMESTAMP:
+				DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssz");
 				pstmt.setTimestamp(i, new Timestamp(df.parse(pName).getTime()));
 				break;
 			default:
 				break;
 			}
 		}
-		return pstmt;
-	}
-
-	private String prepareQueryString(String query) {
-		String q = query.replaceAll("(=\\s{1,})", "=").replaceAll("='.*?'", "= ?").replaceAll("=[^ ]{1,}", "= ?");
-		System.out.println(q);
-		return q;
-	}
-
-	private List<String> extractParameters(String query) {
-		Pattern r = Pattern.compile("(='.*?'|=[^ ]{1,})");
-		Matcher m = r.matcher(query.replaceAll("(=\\s{1,})", "="));
-		List<String> params = new ArrayList<String>();
-		while (m.find()) {
-			String ss = m.group(1).trim();
-			if (ss.startsWith("='")) {
-				params.add(ss.substring(2, ss.length() - 1));
-			} else {
-				params.add(ss.substring(1, ss.length()));
-			}
-		}
-		for (int i = 0; i < params.size(); i++) {
-			System.out.println("Parameter " + (i + 1) + " = " + params.get(i));
-		}
-		return params;
 	}
 
 	private void saveResults(final ResultSet rs) throws Exception {
