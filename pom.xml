@@ -16,7 +16,7 @@
 		<downloadSources>true</downloadSources>
 		<downloadJavadocs>true</downloadJavadocs>
 		<java.version>1.7</java.version>
-		<robotframework.version>2.8.6</robotframework.version>
+		<robotframework.version>2.8.7</robotframework.version>
 		<keywords.class>DatabaseRobotLibrary</keywords.class>
 	</properties>
 
@@ -73,7 +73,7 @@
 				<!-- Integration-Test, build documentation -->
 				<groupId>org.robotframework</groupId>
 				<artifactId>robotframework-maven-plugin</artifactId>
-				<version>1.4.3</version>
+				<version>1.4.4</version>
 				<executions>
 					<execution>
 						<id>html</id>
